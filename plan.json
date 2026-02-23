@@ -1,0 +1,223 @@
+{
+  "projectDescription": "Life System Kanban — A web-based Kanban board application built with Node.js/TypeScript. The app allows users to create, rename, reorder, and delete swim lanes (columns) and cards within them, move cards between lanes, and customize colors for both lanes and cards. The tech stack is: Vite (build/dev tooling), Radix UI (accessible UI primitives), Hono (lightweight HTTP server/API framework), PGlite (embedded Postgres-compatible database running in the browser/server), and TypeScript throughout. The project is stored in /agent/data/files/life-system-kanban so it persists across sessions. Proper coding standards, unit tests, and documentation are required.",
+  "steps": [
+    {
+      "goal": "Initialize the project scaffolding and configure the development environment.",
+      "successCriteria": "A working project directory exists at /agent/data/files/life-system-kanban with a valid package.json, tsconfig.json, Vite config, and all core dependencies installed (vite, typescript, hono, @electric-sql/pglite, @radix-ui/react-*, react, react-dom). The project compiles without errors and the dev server starts successfully.",
+      "role": "AI agent — can scaffold the project, write config files, and install dependencies autonomously.",
+      "steps": [
+        {
+          "goal": "Create the project directory structure with standard conventions (src/, src/components/, src/api/, src/db/, src/types/, src/styles/, tests/).",
+          "successCriteria": "All directories exist and follow a clean, idiomatic layout.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Initialize package.json with project metadata and install all dependencies: vite, typescript, react, react-dom, hono, @electric-sql/pglite, @radix-ui/themes, @radix-ui/react-dialog, @radix-ui/react-dropdown-menu, @radix-ui/react-popover, @radix-ui/react-context-menu, @dnd-kit/core, @dnd-kit/sortable, vitest, @testing-library/react, @testing-library/jest-dom, and their corresponding type packages.",
+          "successCriteria": "package.json exists with all dependencies listed. node_modules is populated. No install errors.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Configure TypeScript (tsconfig.json), Vite (vite.config.ts), and Vitest (vitest.config.ts or within vite.config.ts).",
+          "successCriteria": "tsc --noEmit passes. Vite dev server starts without errors. Vitest can discover and run a trivial test.",
+          "role": "AI agent",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "goal": "Design and implement the database schema and data access layer using PGlite.",
+      "successCriteria": "PGlite initializes successfully in the browser, creates the required tables (lanes, cards) with all necessary columns (id, name, color, position/order, timestamps, lane_id foreign key on cards), and the data access layer exposes typed functions for all CRUD operations. Unit tests for the data layer pass.",
+      "role": "AI agent — can design schema, write migration logic, and implement the data access layer.",
+      "steps": [
+        {
+          "goal": "Define the database schema: lanes table (id UUID PK, name TEXT, color TEXT, position INT, created_at TIMESTAMP, updated_at TIMESTAMP) and cards table (id UUID PK, lane_id UUID FK, name TEXT, color TEXT, position INT, created_at TIMESTAMP, updated_at TIMESTAMP).",
+          "successCriteria": "Schema SQL is defined. Tables are created on PGlite initialization. Schema supports all required fields.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Implement the data access layer (src/db/) with typed functions: createLane, getLanes, updateLane, deleteLane, createCard, getCardsByLane, updateCard, moveCard, deleteCard, reorderCards, reorderLanes.",
+          "successCriteria": "All functions are implemented with proper TypeScript types. Each function correctly executes SQL against PGlite and returns typed results.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Write unit tests for all data access functions.",
+          "successCriteria": "Tests cover create, read, update, delete, and move operations for both lanes and cards. All tests pass via vitest.",
+          "role": "AI agent",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "goal": "Build the API layer using Hono to expose RESTful endpoints for lanes and cards.",
+      "successCriteria": "A Hono-based API is available (either server-side or as an in-app router) with endpoints for all CRUD operations on lanes and cards. Endpoints return proper HTTP status codes and JSON responses. Unit/integration tests for the API layer pass.",
+      "role": "AI agent — can implement the API routes and tests.",
+      "steps": [
+        {
+          "goal": "Implement Hono API routes: GET /api/lanes, POST /api/lanes, PATCH /api/lanes/:id, DELETE /api/lanes/:id, GET /api/lanes/:id/cards, POST /api/cards, PATCH /api/cards/:id, PATCH /api/cards/:id/move, DELETE /api/cards/:id.",
+          "successCriteria": "All routes are defined and connected to the data access layer. Input validation is in place. Routes return appropriate status codes (200, 201, 400, 404, 500).",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Write unit/integration tests for all API endpoints.",
+          "successCriteria": "Tests cover success and error cases for each endpoint. All tests pass via vitest.",
+          "role": "AI agent",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "goal": "Build the frontend UI components using React and Radix UI.",
+      "successCriteria": "A fully functional Kanban board UI is rendered in the browser with lanes displayed as columns, cards displayed within lanes, and all interactive elements (add, edit, delete, color picker, drag-and-drop) working correctly.",
+      "role": "AI agent — can implement all React components and styling.",
+      "steps": [
+        {
+          "goal": "Create the main KanbanBoard component that fetches and displays all lanes and their cards.",
+          "successCriteria": "The board renders lanes as horizontal columns. Each lane displays its name, color, and contained cards. The board fetches data from the API/data layer on mount.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Create the Lane component with support for renaming (inline edit), color selection (via Radix Popover with a color picker), deleting (with Radix AlertDialog confirmation), and an 'Add Card' button.",
+          "successCriteria": "Lanes can be renamed by clicking the title. Lane color can be changed via a color picker popover. Lanes can be deleted with a confirmation dialog. A button exists to add new cards to the lane.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Create the Card component with support for renaming (inline edit or Radix Dialog), color selection, and deleting.",
+          "successCriteria": "Cards display their name and color. Cards can be renamed, recolored, and deleted. All interactions use appropriate Radix UI primitives.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Implement drag-and-drop functionality to move cards between lanes and reorder cards within a lane using @dnd-kit.",
+          "successCriteria": "Cards can be dragged from one lane to another. Cards can be reordered within the same lane by dragging. The database is updated to reflect the new positions after each drag operation.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Implement the 'Add Lane' functionality with a button/UI element to create new swim lanes.",
+          "successCriteria": "A clearly visible 'Add Lane' button exists on the board. Clicking it creates a new lane with a default name. The new lane appears on the board immediately.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Apply consistent styling and ensure responsive layout for the Kanban board.",
+          "successCriteria": "The board has clean, professional styling. Lanes are horizontally scrollable when they overflow. Cards are visually distinct. Color customizations are visually applied to lane headers and card backgrounds.",
+          "role": "AI agent",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "goal": "Write frontend component unit tests.",
+      "successCriteria": "Unit tests exist for KanbanBoard, Lane, Card, and AddLane components. Tests cover rendering, user interactions (add, rename, delete, color change), and data flow. All tests pass via vitest.",
+      "role": "AI agent — can write React Testing Library tests.",
+      "steps": [
+        {
+          "goal": "Write tests for the Card component (render, rename, delete, color change).",
+          "successCriteria": "All Card component tests pass.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Write tests for the Lane component (render, rename, delete, color change, add card).",
+          "successCriteria": "All Lane component tests pass.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Write tests for the KanbanBoard component (render lanes, integration with drag-and-drop).",
+          "successCriteria": "All KanbanBoard component tests pass.",
+          "role": "AI agent",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "goal": "Integrate all layers (database, API, UI) and perform end-to-end validation.",
+      "successCriteria": "The full application works end-to-end: the user can create lanes, add cards, move cards between lanes, rename and recolor lanes and cards, delete cards and lanes. Data persists via PGlite. The dev server runs without errors. All unit tests pass.",
+      "role": "AI agent — can perform integration testing and fix issues.",
+      "steps": [
+        {
+          "goal": "Wire up the frontend to the API/data layer so all UI actions trigger real data operations.",
+          "successCriteria": "Creating, renaming, deleting, moving, and recoloring lanes and cards all persist to PGlite and survive page refreshes.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Run the full test suite and fix any failing tests.",
+          "successCriteria": "All unit and integration tests pass. No TypeScript compilation errors. No console errors in the browser.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Perform manual validation of all features by reviewing the code paths and ensuring correctness.",
+          "successCriteria": "All features (create/rename/delete/recolor lanes, create/rename/delete/recolor/move cards, drag-and-drop reordering) are implemented and connected.",
+          "role": "AI agent",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "goal": "Create project documentation for cross-session continuity.",
+      "successCriteria": "A comprehensive README.md exists in the project root and a CLAUDE.md file exists that documents the project architecture, tech stack, directory structure, how to run the dev server, how to run tests, and any important decisions or patterns used. Subsequent sessions can pick up development without ambiguity.",
+      "role": "AI agent — can write all documentation.",
+      "steps": [
+        {
+          "goal": "Write README.md with project overview, tech stack, setup instructions, scripts, and architecture overview.",
+          "successCriteria": "README.md is comprehensive, accurate, and up-to-date with the final project state.",
+          "role": "AI agent",
+          "steps": []
+        },
+        {
+          "goal": "Write CLAUDE.md with session handoff context: project structure, key files, coding conventions used, known issues, and instructions for continuing development.",
+          "successCriteria": "CLAUDE.md contains enough context for a new AI session to immediately understand and work on the project without re-exploration.",
+          "role": "AI agent",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "goal": "Human review and acceptance testing.",
+      "successCriteria": "The human user has reviewed the running application, confirmed all features work as expected, and approved the project as complete.",
+      "role": "Human — must manually test the application in a browser, verify all features (create/rename/delete/recolor lanes and cards, drag-and-drop, data persistence), and provide final acceptance.",
+      "steps": [
+        {
+          "goal": "Start the dev server and open the application in a browser.",
+          "successCriteria": "The application loads without errors and displays the Kanban board.",
+          "role": "Human",
+          "steps": []
+        },
+        {
+          "goal": "Test all lane operations: create, rename, change color, delete.",
+          "successCriteria": "All lane operations work correctly and persist after page refresh.",
+          "role": "Human",
+          "steps": []
+        },
+        {
+          "goal": "Test all card operations: create, rename, change color, delete, move between lanes via drag-and-drop.",
+          "successCriteria": "All card operations work correctly and persist after page refresh.",
+          "role": "Human",
+          "steps": []
+        },
+        {
+          "goal": "Verify data persistence by refreshing the page and confirming all data is retained.",
+          "successCriteria": "All lanes, cards, colors, and positions persist across page refreshes.",
+          "role": "Human",
+          "steps": []
+        },
+        {
+          "goal": "Report any bugs or request changes.",
+          "successCriteria": "Either no issues found (project accepted) or a list of issues provided for the AI agent to fix in a subsequent session.",
+          "role": "Human",
+          "steps": []
+        }
+      ]
+    }
+  ]
+}

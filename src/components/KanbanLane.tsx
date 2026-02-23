@@ -1,0 +1,141 @@
+import { useState } from 'react';
+import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { KanbanCard } from './KanbanCard';
+import { AddCardButton } from './AddCardButton';
+import { LaneMenu } from './LaneMenu';
+import type { Lane, Card, UpdateCardInput, UpdateLaneInput } from '../types';
+import './KanbanLane.css';
+
+interface KanbanLaneProps {
+  lane: Lane;
+  cards: Card[];
+  onAddCard: (laneId: number, name: string, color: string) => Promise<void>;
+  onUpdateCard: (id: number, updates: UpdateCardInput) => Promise<void>;
+  onDeleteCard: (id: number) => Promise<void>;
+  onUpdateLane: (id: number, updates: UpdateLaneInput) => Promise<void>;
+  onDeleteLane: (id: number) => Promise<void>;
+  showToast: (message: string, type?: 'success' | 'error') => void;
+}
+
+export function KanbanLane({
+  lane,
+  cards,
+  onAddCard,
+  onUpdateCard,
+  onDeleteCard,
+  onUpdateLane,
+  onDeleteLane,
+  showToast,
+}: KanbanLaneProps) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(lane.name);
+
+  const { setNodeRef, isOver } = useDroppable({
+    id: `lane-${lane.id}`,
+  });
+
+  const handleNameSubmit = async () => {
+    if (editedName.trim() && editedName !== lane.name) {
+      try {
+        await onUpdateLane(lane.id, { name: editedName.trim() });
+        showToast('Lane renamed successfully');
+      } catch (error) {
+        showToast('Failed to rename lane', 'error');
+      }
+    }
+    setIsEditingName(false);
+  };
+
+  const handleColorChange = async (color: string) => {
+    try {
+      await onUpdateLane(lane.id, { color });
+      showToast('Lane color updated');
+    } catch (error) {
+      showToast('Failed to update lane color', 'error');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (cards.length > 0) {
+      const confirmed = window.confirm(
+        `Delete lane "${lane.name}" and all ${cards.length} card(s)?`
+      );
+      if (!confirmed) return;
+    }
+
+    try {
+      await onDeleteLane(lane.id);
+      showToast('Lane deleted successfully');
+    } catch (error) {
+      showToast('Failed to delete lane', 'error');
+    }
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`kanban-lane ${isOver ? 'lane-over' : ''}`}
+      style={{ borderTopColor: lane.color }}
+    >
+      <div className="lane-header" style={{ backgroundColor: lane.color }}>
+        {isEditingName ? (
+          <input
+            type="text"
+            value={editedName}
+            onChange={(e) => setEditedName(e.target.value)}
+            onBlur={handleNameSubmit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleNameSubmit();
+              if (e.key === 'Escape') {
+                setEditedName(lane.name);
+                setIsEditingName(false);
+              }
+            }}
+            className="lane-name-input"
+            autoFocus
+          />
+        ) : (
+          <h2 className="lane-title" onDoubleClick={() => setIsEditingName(true)}>
+            {lane.name}
+          </h2>
+        )}
+
+        <div className="lane-header-actions">
+          <span className="card-count">{cards.length}</span>
+          <LaneMenu
+            onRename={() => setIsEditingName(true)}
+            onChangeColor={handleColorChange}
+            onDelete={handleDelete}
+            currentColor={lane.color}
+          />
+        </div>
+      </div>
+
+      <div className="lane-cards">
+        <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {cards.map((card) => (
+            <KanbanCard
+              key={card.id}
+              card={card}
+              onUpdate={onUpdateCard}
+              onDelete={onDeleteCard}
+              showToast={showToast}
+            />
+          ))}
+        </SortableContext>
+      </div>
+
+      <AddCardButton
+        onAddCard={async (name, color) => {
+          try {
+            await onAddCard(lane.id, name, color);
+            showToast('Card created successfully');
+          } catch (error) {
+            showToast('Failed to create card', 'error');
+          }
+        }}
+      />
+    </div>
+  );
+}

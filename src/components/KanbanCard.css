@@ -1,0 +1,60 @@
+.kanban-card {
+  background-color: white;
+  border-radius: 6px;
+  cursor: grab;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.kanban-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.kanban-card:active {
+  cursor: grabbing;
+}
+
+.kanban-card.dragging {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  transform: rotate(-2deg);
+}
+
+.card-content {
+  padding: 0.75rem;
+  border-radius: 6px;
+  position: relative;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-name {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #1e293b;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  margin: 0;
+  flex: 1;
+}
+
+.card-name-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px solid #3b82f6;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #1e293b;
+  resize: none;
+  font-family: inherit;
+}
+
+.card-name-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: white;
+}
