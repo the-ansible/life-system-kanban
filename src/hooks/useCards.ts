@@ -3,12 +3,16 @@ import type { Card, CreateCardInput, UpdateCardInput } from '../types';
 
 const API_BASE = '/api';
 
-export function useCards() {
+export function useCards(boardId: number | null) {
   const [cards, setCards] = useState<Card[]>([]);
 
   const fetchCards = async () => {
+    if (boardId === null) {
+      setCards([]);
+      return;
+    }
     try {
-      const response = await fetch(`${API_BASE}/cards`);
+      const response = await fetch(`${API_BASE}/boards/${boardId}/cards`);
       const data = await response.json();
       setCards(data);
     } catch (error) {
@@ -18,15 +22,16 @@ export function useCards() {
 
   useEffect(() => {
     fetchCards();
-  }, []);
+  }, [boardId]);
 
   const addCard = async (laneId: number, name: string, color: string) => {
+    if (boardId === null) throw new Error('No board selected');
     try {
       const cardsInLane = cards.filter((c) => c.lane_id === laneId);
       const position = cardsInLane.length;
 
       const input: CreateCardInput = { lane_id: laneId, name, color, position };
-      const response = await fetch(`${API_BASE}/cards`, {
+      const response = await fetch(`${API_BASE}/boards/${boardId}/cards`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
@@ -41,8 +46,9 @@ export function useCards() {
   };
 
   const updateCard = async (id: number, updates: UpdateCardInput) => {
+    if (boardId === null) throw new Error('No board selected');
     try {
-      const response = await fetch(`${API_BASE}/cards/${id}`, {
+      const response = await fetch(`${API_BASE}/boards/${boardId}/cards/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -57,8 +63,9 @@ export function useCards() {
   };
 
   const deleteCard = async (id: number) => {
+    if (boardId === null) throw new Error('No board selected');
     try {
-      await fetch(`${API_BASE}/cards/${id}`, {
+      await fetch(`${API_BASE}/boards/${boardId}/cards/${id}`, {
         method: 'DELETE',
       });
       setCards((prev) => prev.filter((card) => card.id !== id));
@@ -69,8 +76,9 @@ export function useCards() {
   };
 
   const moveCard = async (cardId: number, targetLaneId: number, newPosition: number) => {
+    if (boardId === null) throw new Error('No board selected');
     try {
-      const response = await fetch(`${API_BASE}/cards/move`, {
+      const response = await fetch(`${API_BASE}/boards/${boardId}/cards/move`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cardId, targetLaneId, newPosition }),

@@ -9,7 +9,7 @@ describe('useCards', () => {
     vi.clearAllMocks();
   });
 
-  it('should fetch cards on mount', async () => {
+  it('should fetch cards on mount when boardId is provided', async () => {
     const mockCards = [
       { id: 1, lane_id: 1, name: 'Task 1', color: '#ffffff', position: 0 },
       { id: 2, lane_id: 1, name: 'Task 2', color: '#ffffff', position: 1 },
@@ -19,13 +19,20 @@ describe('useCards', () => {
       json: async () => mockCards,
     });
 
-    const { result } = renderHook(() => useCards());
+    const { result } = renderHook(() => useCards(1));
 
     await waitFor(() => {
       expect(result.current.cards).toEqual(mockCards);
     });
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/cards');
+    expect(global.fetch).toHaveBeenCalledWith('/api/boards/1/cards');
+  });
+
+  it('should not fetch when boardId is null', async () => {
+    const { result } = renderHook(() => useCards(null));
+
+    expect(result.current.cards).toEqual([]);
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('should add a new card', async () => {
@@ -35,7 +42,7 @@ describe('useCards', () => {
       .mockResolvedValueOnce({ json: async () => [] })
       .mockResolvedValueOnce({ json: async () => mockCard });
 
-    const { result } = renderHook(() => useCards());
+    const { result } = renderHook(() => useCards(1));
 
     await waitFor(() => {
       expect(result.current.cards).toEqual([]);
@@ -56,7 +63,7 @@ describe('useCards', () => {
       .mockResolvedValueOnce({ json: async () => [initialCard] })
       .mockResolvedValueOnce({ json: async () => updatedCard });
 
-    const { result } = renderHook(() => useCards());
+    const { result } = renderHook(() => useCards(1));
 
     await waitFor(() => {
       expect(result.current.cards).toEqual([initialCard]);
@@ -76,7 +83,7 @@ describe('useCards', () => {
       .mockResolvedValueOnce({ json: async () => [mockCard] })
       .mockResolvedValueOnce({ json: async () => ({ success: true }) });
 
-    const { result } = renderHook(() => useCards());
+    const { result } = renderHook(() => useCards(1));
 
     await waitFor(() => {
       expect(result.current.cards).toEqual([mockCard]);
@@ -97,7 +104,7 @@ describe('useCards', () => {
       .mockResolvedValueOnce({ json: async () => [initialCard] })
       .mockResolvedValueOnce({ json: async () => movedCard });
 
-    const { result } = renderHook(() => useCards());
+    const { result } = renderHook(() => useCards(1));
 
     await waitFor(() => {
       expect(result.current.cards).toEqual([initialCard]);

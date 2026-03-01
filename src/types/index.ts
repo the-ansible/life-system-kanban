@@ -1,5 +1,13 @@
+export interface Board {
+  id: number;
+  name: string;
+  description: string | null;
+  created_at?: string;
+}
+
 export interface Lane {
   id: number;
+  board_id: number;
   name: string;
   color: string;
   position: number;
@@ -12,7 +20,18 @@ export interface Card {
   name: string;
   color: string;
   position: number;
+  linked_board_id: number | null;
   created_at?: string;
+}
+
+export interface CreateBoardInput {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateBoardInput {
+  name?: string;
+  description?: string;
 }
 
 export interface CreateLaneInput {
@@ -32,6 +51,7 @@ export interface CreateCardInput {
   name: string;
   color?: string;
   position: number;
+  linked_board_id?: number;
 }
 
 export interface UpdateCardInput {
@@ -39,10 +59,19 @@ export interface UpdateCardInput {
   name?: string;
   color?: string;
   position?: number;
+  linked_board_id?: number | null;
 }
 
 export interface MoveCardInput {
   cardId: number;
   targetLaneId: number;
   newPosition: number;
+}
+
+export interface LaneWithCards extends Lane {
+  cards: Card[];
+}
+
+export interface BoardWithLanes extends Board {
+  lanes: LaneWithCards[];
 }

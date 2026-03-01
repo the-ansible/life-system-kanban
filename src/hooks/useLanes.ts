@@ -3,12 +3,16 @@ import type { Lane, CreateLaneInput, UpdateLaneInput } from '../types';
 
 const API_BASE = '/api';
 
-export function useLanes() {
+export function useLanes(boardId: number | null) {
   const [lanes, setLanes] = useState<Lane[]>([]);
 
   const fetchLanes = async () => {
+    if (boardId === null) {
+      setLanes([]);
+      return;
+    }
     try {
-      const response = await fetch(`${API_BASE}/lanes`);
+      const response = await fetch(`${API_BASE}/boards/${boardId}/lanes`);
       const data = await response.json();
       setLanes(data);
     } catch (error) {
@@ -18,12 +22,13 @@ export function useLanes() {
 
   useEffect(() => {
     fetchLanes();
-  }, []);
+  }, [boardId]);
 
   const addLane = async (name: string, color: string, position: number) => {
+    if (boardId === null) throw new Error('No board selected');
     try {
       const input: CreateLaneInput = { name, color, position };
-      const response = await fetch(`${API_BASE}/lanes`, {
+      const response = await fetch(`${API_BASE}/boards/${boardId}/lanes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
@@ -38,8 +43,9 @@ export function useLanes() {
   };
 
   const updateLane = async (id: number, updates: UpdateLaneInput) => {
+    if (boardId === null) throw new Error('No board selected');
     try {
-      const response = await fetch(`${API_BASE}/lanes/${id}`, {
+      const response = await fetch(`${API_BASE}/boards/${boardId}/lanes/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -54,8 +60,9 @@ export function useLanes() {
   };
 
   const deleteLane = async (id: number) => {
+    if (boardId === null) throw new Error('No board selected');
     try {
-      await fetch(`${API_BASE}/lanes/${id}`, {
+      await fetch(`${API_BASE}/boards/${boardId}/lanes/${id}`, {
         method: 'DELETE',
       });
       setLanes((prev) => prev.filter((lane) => lane.id !== id));
