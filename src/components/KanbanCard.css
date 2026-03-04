@@ -58,3 +58,10 @@
   border-color: #2563eb;
   background: white;
 }
+
+.card-has-description {
+  font-size: 0.7rem;
+  margin-left: 4px;
+  opacity: 0.6;
+  vertical-align: middle;
+}

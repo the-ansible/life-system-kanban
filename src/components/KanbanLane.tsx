@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { KanbanCard } from './KanbanCard';
@@ -15,6 +17,7 @@ interface KanbanLaneProps {
   onDeleteCard: (id: number) => Promise<void>;
   onUpdateLane: (id: number, updates: UpdateLaneInput) => Promise<void>;
   onDeleteLane: (id: number) => Promise<void>;
+  onOpenCardDetail?: (card: Card) => void;
   showToast: (message: string, type?: 'success' | 'error') => void;
 }
 
@@ -26,12 +29,30 @@ export function KanbanLane({
   onDeleteCard,
   onUpdateLane,
   onDeleteLane,
+  onOpenCardDetail,
   showToast,
 }: KanbanLaneProps) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState(lane.name);
 
-  const { setNodeRef, isOver } = useDroppable({
+  // Sortable for lane reordering — whole lane is draggable by its header
+  const {
+    attributes: laneAttributes,
+    listeners: laneListeners,
+    setNodeRef: setLaneSortableRef,
+    transform: laneTransform,
+    transition: laneTransition,
+    isDragging: isLaneDragging,
+  } = useSortable({ id: `lane-${lane.id}`, data: { type: 'lane' } });
+
+  const laneStyle = {
+    transform: CSS.Transform.toString(laneTransform),
+    transition: laneTransition,
+    opacity: isLaneDragging ? 0.5 : 1,
+  };
+
+  // Droppable for card drops into this lane
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: `lane-${lane.id}`,
   });
 
@@ -74,11 +95,16 @@ export function KanbanLane({
 
   return (
     <div
-      ref={setNodeRef}
+      ref={setLaneSortableRef}
+      style={{ ...laneStyle, borderTopColor: lane.color }}
       className={`kanban-lane ${isOver ? 'lane-over' : ''}`}
-      style={{ borderTopColor: lane.color }}
     >
-      <div className="lane-header" style={{ backgroundColor: lane.color }}>
+      <div
+        className="lane-header"
+        style={{ backgroundColor: lane.color, cursor: isLaneDragging ? 'grabbing' : 'grab' }}
+        {...laneAttributes}
+        {...laneListeners}
+      >
         {isEditingName ? (
           <input
             type="text"
@@ -94,14 +120,15 @@ export function KanbanLane({
             }}
             className="lane-name-input"
             autoFocus
+            onClick={(e) => e.stopPropagation()}
           />
         ) : (
-          <h2 className="lane-title" onDoubleClick={() => setIsEditingName(true)}>
+          <h2 className="lane-title" onDoubleClick={(e) => { e.stopPropagation(); setIsEditingName(true); }}>
             {lane.name}
           </h2>
         )}
 
-        <div className="lane-header-actions">
+        <div className="lane-header-actions" onClick={(e) => e.stopPropagation()}>
           <span className="card-count">{cards.length}</span>
           <LaneMenu
             onRename={() => setIsEditingName(true)}
@@ -112,7 +139,7 @@ export function KanbanLane({
         </div>
       </div>
 
-      <div className="lane-cards">
+      <div ref={setDropRef} className="lane-cards">
         <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
           {cards.map((card) => (
             <KanbanCard
@@ -120,6 +147,7 @@ export function KanbanLane({
               card={card}
               onUpdate={onUpdateCard}
               onDelete={onDeleteCard}
+              onOpenDetail={onOpenCardDetail}
               showToast={showToast}
             />
           ))}

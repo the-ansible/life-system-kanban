@@ -278,6 +278,10 @@ app.patch('/api/boards/:boardId/cards/:cardId', async (c) => {
     updates.push(`linked_board_id = $${paramIndex++}`);
     values.push(input.linked_board_id);
   }
+  if (input.description !== undefined) {
+    updates.push(`description = $${paramIndex++}`);
+    values.push(input.description);
+  }
 
   if (updates.length === 0) {
     return c.json({ error: 'No fields to update' }, 400);

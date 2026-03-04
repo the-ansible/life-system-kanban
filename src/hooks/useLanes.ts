@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Lane, CreateLaneInput, UpdateLaneInput } from '../types';
+import { apiUrl } from '../config';
 
-const API_BASE = '/api';
+const API_BASE = apiUrl('api');
 
 export function useLanes(boardId: number | null) {
   const [lanes, setLanes] = useState<Lane[]>([]);

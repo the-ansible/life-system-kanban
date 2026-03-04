@@ -10,10 +10,11 @@ interface KanbanCardProps {
   isDragging?: boolean;
   onUpdate?: (id: number, updates: UpdateCardInput) => Promise<void>;
   onDelete?: (id: number) => Promise<void>;
+  onOpenDetail?: (card: Card) => void;
   showToast?: (message: string, type?: 'success' | 'error') => void;
 }
 
-export function KanbanCard({ card, isDragging, onUpdate, onDelete, showToast }: KanbanCardProps) {
+export function KanbanCard({ card, isDragging, onUpdate, onDelete, onOpenDetail, showToast }: KanbanCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(card.name);
 
@@ -108,8 +109,13 @@ export function KanbanCard({ card, isDragging, onUpdate, onDelete, showToast }: 
             rows={3}
           />
         ) : (
-          <p className="card-name" onDoubleClick={() => setIsEditing(true)}>
+          <p
+            className="card-name"
+            onDoubleClick={() => setIsEditing(true)}
+            onClick={() => onOpenDetail?.(card)}
+          >
             {card.name}
+            {card.description && <span className="card-has-description" title="Has description">📝</span>}
           </p>
         )}
 

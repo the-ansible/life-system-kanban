@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Board, CreateBoardInput, UpdateBoardInput } from '../types';
+import { apiUrl } from '../config';
 
-const API_BASE = '/api';
+const API_BASE = apiUrl('api');
 
 export function useBoards() {
   const [boards, setBoards] = useState<Board[]>([]);

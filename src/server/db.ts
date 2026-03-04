@@ -93,6 +93,9 @@ export async function initializeDatabase() {
     -- Add linked_board_id to cards if it doesn't exist (migration)
     ALTER TABLE cards ADD COLUMN IF NOT EXISTS linked_board_id INTEGER REFERENCES boards(id) ON DELETE SET NULL;
 
+    -- Add description to cards if it doesn't exist (migration)
+    ALTER TABLE cards ADD COLUMN IF NOT EXISTS description TEXT;
+
     CREATE INDEX IF NOT EXISTS idx_lanes_board_id ON lanes(board_id);
     CREATE INDEX IF NOT EXISTS idx_cards_lane_id ON cards(lane_id);
     CREATE INDEX IF NOT EXISTS idx_lanes_position ON lanes(position);

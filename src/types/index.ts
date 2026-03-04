@@ -18,6 +18,7 @@ export interface Card {
   id: number;
   lane_id: number;
   name: string;
+  description: string | null;
   color: string;
   position: number;
   linked_board_id: number | null;
@@ -57,6 +58,7 @@ export interface CreateCardInput {
 export interface UpdateCardInput {
   lane_id?: number;
   name?: string;
+  description?: string | null;
   color?: string;
   position?: number;
   linked_board_id?: number | null;

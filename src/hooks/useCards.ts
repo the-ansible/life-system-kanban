@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Card, CreateCardInput, UpdateCardInput } from '../types';
+import { apiUrl } from '../config';
 
-const API_BASE = '/api';
+const API_BASE = apiUrl('api');
 
 export function useCards(boardId: number | null) {
   const [cards, setCards] = useState<Card[]>([]);
